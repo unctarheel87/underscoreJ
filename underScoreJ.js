@@ -1,12 +1,26 @@
 (function() {
   function _j(selector) {
-    const node = document.querySelector(selector);
-    return DOM_Obj(node);
+    // breadth first traversal to find _J object
+    const _JObj = Object.create(_j.prototype);
+    _JObj['items'] = [];
+    window._J.traverseBF(function(node) {
+      if(
+        selector.toUpperCase() === node.data.node.nodeName ||
+        selector === node.data.node.id ||
+        selector === node.data.node.className
+        ) {
+        _JObj['items'].push(node.data);
+      }
+    })
+    _JObj['items'].length <= 1 ? _JObj['items'] = _JObj['items'][0] : _JObj;
+    return _JObj;
   }
+  _j.prototype = Object.create(_J.prototype);
   window._j = _j;
+  console.log(_j.prototype);
 
-  function DOM_Obj(node) {
-    const domObj = Object.create(DOM_Obj.prototype)
+  function _J(node) {
+    const domObj = Object.create(_J.prototype);
     // obj properties on initialization
     domObj.node = node;
     domObj.events = {}
@@ -16,24 +30,33 @@
     return domObj;
   }
   // Register event handler
-  DOM_Obj.prototype.on = function(eventName, callback) {
-    if(this.events[eventName]) {
-      this.events[eventName].push(callback);
+  _J.prototype.on = function(eventName, callback) {
+    if(Array.isArray(this['items'])) {
+      for(let node of this['items']) {
+        bindEvents(node, eventName, callback);
+      }
     } else {
-      this.events[eventName] = [callback];
-    }
-    switch (eventName) {
-      case 'click':
-        for(let cb of this.events[eventName]) {
-          this.node.addEventListener('click', cb);
-        }
-        break;
-      default:
-        break;
+      bindEvents(this['items'], eventName, callback);
     }
   }
+  function bindEvents(node, eventName, callback) {
+      if(node.events[eventName]) {
+        node.events[eventName].push(callback);
+      } else {
+        node.events[eventName] = [callback];
+      }
+      switch (eventName) {
+        case 'click':
+          for(let cb of node.events[eventName]) {
+            node.node.addEventListener('click', cb);
+          }
+          break;
+        default:
+          break;
+      }
+    }
   // Trigger all callbacks with element name
-  DOM_Obj.prototype.trigger = function(eventName) {
+  _J.prototype.trigger = function(eventName) {
     if(this.events[eventName]) {
       for(let cb of this.events[eventName]) {
         cb();
@@ -41,11 +64,11 @@
     }
   }
   // Remove all handlers on element name
-  DOM_Obj.prototype.off = function(eventName) {
+  _J.prototype.off = function(eventName) {
     delete this.events[eventName];
   }
 
-  DOM_Obj.prototype.css = function(style) {
+  _J.prototype.css = function(style) {
     if(this.styles[style]) {
       this.events[eventName].push(callback);
     } else {
@@ -97,18 +120,18 @@
   function buildDom() {
     const domTree = Tree();
     // depth first traversal to build DOM Tree
-    domTree.root = Node(document.querySelector('body'));
+    domTree.root = Node(_J(document.querySelector('body')));
     const nodeArr = [domTree.root];
     while(nodeArr.length) {
       const node = nodeArr.shift();
-      for(let child in node.data.children) {
-        if(typeof node.data.children[child] !== 'function' && child !== 'length') {
-          node.add(node.data.children[child]);
+      for(let child in node.data.node.children) {
+        if(typeof node.data.node.children[child] !== 'function' && child !== 'length') {
+          node.add(_J(node.data.node.children[child]));
         }
       }
       nodeArr.unshift(...node.children);
     }
-    console.log(domTree)
+    window._J = domTree;
   }
 
   buildDom();
