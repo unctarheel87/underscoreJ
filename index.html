@@ -23,12 +23,13 @@
 
 <script src="underScoreJ.js"></script>
 <script>
-  const li = _j('li');
+  const li = _j('<li>');
   console.log(li);
+  console.log(_j('h1'));
   li.on('click', function() {
     console.log('hello world!')
   });
-  console.log(_j('<h5>'))
+  _j('h1').append(li);
   console.log(_J);
 </script>
 </body>

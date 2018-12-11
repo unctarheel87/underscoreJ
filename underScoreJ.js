@@ -5,8 +5,7 @@
     // create element if starts with '<'
     if(selector.charAt(0) === '<') {
       const tagName = selector.split('').filter(char => char !== '<' && char !== '>').join('');
-      console.log(tagName)
-      _JObj[i] = document.createElement(tagName);
+      _JObj[i] = _J(document.createElement(tagName));
     }
     // breadth first traversal to find _J object
     window._J.traverseBF(function(node) {
@@ -22,6 +21,7 @@
     return _JObj;
   }
   _j.prototype = Object.create(_J.prototype);
+  _j.prototype.constructor = _j;
   window._j = _j;
   console.log(_j.prototype);
 
@@ -78,6 +78,10 @@
     } else {
       this.styles[eventName] = [callback];
     }
+  }
+
+  _J.prototype.append = function(el) {
+    this[0].node.appendChild(el[0].node);
   }
 
   function Node(data) {
