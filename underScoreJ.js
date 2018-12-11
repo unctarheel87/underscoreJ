@@ -42,7 +42,9 @@
         bindEvents(this[node], eventName, callback);
       }
     }
+    return this;
   }
+
   function bindEvents(node, eventName, callback) {
       if(node.events[eventName]) {
         node.events[eventName].push(callback);
@@ -66,22 +68,35 @@
         cb();
       }
     }
+    return this;
   }
   // Remove all handlers on element name
   _J.prototype.off = function(eventName) {
     delete this.events[eventName];
+    return this;
   }
 
-  _J.prototype.css = function(style) {
-    if(this.styles[style]) {
-      this.events[eventName].push(callback);
-    } else {
-      this.styles[eventName] = [callback];
+  _J.prototype.css = function(prop, style) {
+    for(let node in this) {
+      if(this.hasOwnProperty(node)) {
+        if(this[node].styles.length > 0) {
+          this[node].styles.push({ [prop]: style });
+        } else {
+          this[node].styles = [{ [prop]: style }];
+        }
+        let styles = ''
+        for(let style of this[node].styles) {
+          styles = styles + Object.keys(style)[0] + ": " + Object.values(style)[0] + ';'
+        }
+        this[node].node.style = styles;
+      }
     }
+    return this;
   }
 
   _J.prototype.append = function(el) {
     this[0].node.appendChild(el[0].node);
+    return this;
   }
 
   function Node(data) {
