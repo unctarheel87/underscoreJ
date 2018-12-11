@@ -1,18 +1,24 @@
 (function() {
   function _j(selector) {
-    // breadth first traversal to find _J object
     const _JObj = Object.create(_j.prototype);
-    _JObj['items'] = [];
+    let i = 0;
+    // create element if starts with '<'
+    if(selector.charAt(0) === '<') {
+      const tagName = selector.split('').filter(char => char !== '<' && char !== '>').join('');
+      console.log(tagName)
+      _JObj[i] = document.createElement(tagName);
+    }
+    // breadth first traversal to find _J object
     window._J.traverseBF(function(node) {
       if(
         selector.toUpperCase() === node.data.node.nodeName ||
         selector === node.data.node.id ||
         selector === node.data.node.className
         ) {
-        _JObj['items'].push(node.data);
+        _JObj[i] = node.data;
+        i++
       }
     })
-    _JObj['items'].length <= 1 ? _JObj['items'] = _JObj['items'][0] : _JObj;
     return _JObj;
   }
   _j.prototype = Object.create(_J.prototype);
@@ -31,12 +37,10 @@
   }
   // Register event handler
   _J.prototype.on = function(eventName, callback) {
-    if(Array.isArray(this['items'])) {
-      for(let node of this['items']) {
-        bindEvents(node, eventName, callback);
+    for(let node in this) {
+      if(this.hasOwnProperty(node)) {
+        bindEvents(this[node], eventName, callback);
       }
-    } else {
-      bindEvents(this['items'], eventName, callback);
     }
   }
   function bindEvents(node, eventName, callback) {
