@@ -11,8 +11,8 @@
     window._J.traverseBF(function(node) {
       if(
         selector.toUpperCase() === node.data.node.nodeName ||
-        selector === node.data.node.id ||
-        selector === node.data.node.className
+        (selector.charAt(0) === '#' && selector.substring(1) === node.data.node.id) ||
+        (selector.charAt(0) === '.' && selector.substring(1) === node.data.node.className)
         ) {
         _JObj[i] = node.data;
         i++
@@ -23,7 +23,6 @@
   _j.prototype = Object.create(_J.prototype);
   _j.prototype.constructor = _j;
   window._j = _j;
-  console.log(_j.prototype);
 
   function _J(node) {
     const domObj = Object.create(_J.prototype);
@@ -95,8 +94,15 @@
   }
 
   _J.prototype.append = function(el) {
-    this[0].node.appendChild(el[0].node);
-    return this;
+    return _J(this[0].node.appendChild(el[0].node));
+  }
+
+  _J.prototype.text = function(text) {
+    return this.node.innerText = text;
+  }
+
+  _J.prototype.html = function(html) {
+    return this.node.innerHTML = html;
   }
 
   function Node(data) {
@@ -140,10 +146,10 @@
     }
   }
 
-  function buildDom() {
+  function buildDOM() {
     const domTree = Tree();
     // depth first traversal to build DOM Tree
-    domTree.root = Node(_J(document.querySelector('body')));
+    domTree.root = Node(_J(document.body));
     const nodeArr = [domTree.root];
     while(nodeArr.length) {
       const node = nodeArr.shift();
@@ -157,5 +163,5 @@
     window._J = domTree;
   }
 
-  buildDom();
+  buildDOM();
 })();

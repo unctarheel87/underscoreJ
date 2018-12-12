@@ -30,6 +30,8 @@
     console.log('hello world!')
   });
   _j('h1').css('color', 'blue').css('background', 'yellow');
+  console.log(_j('#container-one').append(_j('<h1>')));
+  _j('#container-one').append(_j('<h1>')).text('does this work?');
   console.log(_J);
 </script>
 </body>
